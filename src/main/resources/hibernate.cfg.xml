@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="connection.url">
+            jdbc:sqlserver://tappsql.database.windows.net:1433;database=TAPP;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;
+        </property>
+        <property name="connection.driver_class">com.microsoft.sqlserver.jdbc.SQLServerDriver</property>
+        <mapping class="de.tapp.entity.Gruppe"/>
+        <mapping class="de.tapp.entity.Gruppenmitglied"/>
+        <mapping class="de.tapp.entity.Person"/>
+        <mapping class="de.tapp.entity.Rolle"/>
+        <mapping class="de.tapp.entity.Termin"/>
+        <mapping class="de.tapp.entity.TerminPerson"/>
+        <mapping class="de.tapp.entity.Terminstatus"/>
+        <!-- <property name="connection.username"/> -->
+        <!-- <property name="connection.password"/> -->
+
+        <!-- DB schema will be updated if needed -->
+        <!-- <property name="hbm2ddl.auto">update</property> -->
+    </session-factory>
+</hibernate-configuration>
