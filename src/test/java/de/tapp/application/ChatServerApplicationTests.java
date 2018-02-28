@@ -1,4 +1,4 @@
-package de.lvm.javaakademie.chat;
+package de.tapp.application;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

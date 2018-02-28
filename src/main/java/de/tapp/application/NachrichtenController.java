@@ -1,4 +1,4 @@
-package de.lvm.javaakademie.chat;
+package de.tapp.application;
 
 import java.util.ArrayList;
 import java.util.HashMap;

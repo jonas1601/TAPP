@@ -1,4 +1,4 @@
-package de.lvm.javaakademie.chat;
+package de.tapp.application;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
