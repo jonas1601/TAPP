@@ -6,6 +6,7 @@ import com.google.firebase.FirebaseOptions;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
@@ -13,6 +14,7 @@ import java.io.FileInputStream;
 
 
 @SpringBootApplication
+@ComponentScan(basePackages = {"de.tapp.controller"})
 public class TAPPServerApplication {
 
 	public static void main(String[] args){
