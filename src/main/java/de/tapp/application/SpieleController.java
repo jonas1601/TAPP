@@ -7,6 +7,8 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
 import de.tapp.entity.Rolle;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,16 +23,12 @@ import org.hibernate.cfg.Configuration;
 public class SpieleController {
 
 
+
 	@GetMapping(path = "/spiele")
 	public List<Rolle> getRollen() {
 
 
-		Rolle r = new Rolle();
-		r.setBeschreibung("Test");
-		r.setRollenId(1);
-		Configuration config = new Configuration();
-		config.configure();
-		Session session = config.buildSessionFactory().openSession();
+		Session session = HibernateConfiguration.getSessionFactory().openSession();
 		return session.createCriteria(Rolle.class).list();
 /*
 		// This registration token comes from the client FCM SDKs.
