@@ -11,6 +11,7 @@ public class Gruppenmitglied {
     private Integer rollenId;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "person_id", nullable = false)
     public int getPersonId() {
         return personId;

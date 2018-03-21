@@ -1,9 +1,6 @@
 package de.tapp.entity;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.Objects;
 
@@ -18,6 +15,7 @@ public class Termin {
     private int gruppenId;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "termin_id", nullable = false)
     public int getTerminId() {
         return terminId;
