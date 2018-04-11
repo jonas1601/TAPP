@@ -1,51 +1,41 @@
 package de.tapp.entity;
 
-import com.sun.javafx.beans.IDProperty;
-
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-public class Gruppenmitglied {
+public class Gruppenmitglied implements Serializable {
 
-    @EmbeddedId
-    private GruppenmitgliedPK id;
+    @Id
+    @Column(name = "person_id", nullable = false)
+    private int personId;
 
-    @ManyToOne
-    @JoinColumn(name="person_id")
-    private Person person;
-
-    @OneToOne
-    @JoinColumn(name="gruppen_id")
-    private Gruppe gruppe;
+    @Id
+    @Column(name = "gruppen_id", nullable = false)
+    private int gruppenId;
 
     @OneToOne
-    @JoinColumn(name="rollen_id")
+    @JoinColumn(name = "rollen_id")
     private Rolle rolle;
 
-
-    public GruppenmitgliedPK getId() {
-        return id;
+    public int getPersonId() {
+        return personId;
     }
 
-    public void setId(GruppenmitgliedPK id) {
-        this.id = id;
-    }
-
-    public Person getPerson() {
-        return person;
-    }
-
-    public void setPerson(Person person) {
-        this.person = person;
+    public void setPerson(int personId) {
+        this.personId = personId;
     }
 
 
-    public Gruppe getGruppe() {
-        return gruppe;
+    @Basic
+    @Column(name = "gruppen_id", nullable = false, length = 2147483647)
+    public int getGruppenId() {
+        return gruppenId;
     }
-    public void setGruppe(Gruppe gruppe) {
-        this.gruppe = gruppe;
+
+    public void setGruppenId(int gruppenId) {
+        this.gruppenId = gruppenId;
     }
 
 
@@ -62,8 +52,8 @@ public class Gruppenmitglied {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Gruppenmitglied that = (Gruppenmitglied) o;
-        return Objects.equals(person, that.person) &&
-                Objects.equals(gruppe, that.gruppe) &&
+        return Objects.equals(personId, that.personId) &&
+                Objects.equals(gruppenId, that.gruppenId) &&
                 Objects.equals(rolle, that.rolle);
     }
 
