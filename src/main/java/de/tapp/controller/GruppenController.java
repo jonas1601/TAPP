@@ -55,10 +55,24 @@ public class GruppenController {
         }
     }
 
-    @GetMapping(path = "/gruppe")
+    @GetMapping(path = "/gruppenbyname")
     public List<Gruppe> getGruppenVonPerson(@RequestParam String benutzername) {
         Session session = HibernateConfiguration.getSessionFactory().openSession();
         Person person = (Person) session.createCriteria(Person.class).add(Restrictions.eq("benutzername", benutzername)).uniqueResult();
+        List<Gruppenmitglied> g = session.createCriteria(Gruppenmitglied.class).add(Restrictions.eq("personId", person.getPersonId())).list();
+        List<Gruppe> gruppen = new ArrayList<Gruppe>();
+        for (int i = 0; i < g.size(); i++) {
+            Gruppe grp = session.load(Gruppe.class, g.get(i).getGruppenId());
+            gruppen.add(grp);
+        }
+        session.close();
+        return gruppen;
+    }
+
+    @GetMapping(path = "/gruppe")
+    public List<Gruppe> getGruppenVonPerson(@RequestParam int personId) {
+        Session session = HibernateConfiguration.getSessionFactory().openSession();
+        Person person = (Person) session.load(Person.class, personId);
         List<Gruppenmitglied> g = session.createCriteria(Gruppenmitglied.class).add(Restrictions.eq("personId", person.getPersonId())).list();
         List<Gruppe> gruppen = new ArrayList<Gruppe>();
         for (int i = 0; i < g.size(); i++) {
