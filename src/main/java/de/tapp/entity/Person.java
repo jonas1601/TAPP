@@ -1,12 +1,17 @@
 package de.tapp.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.hibernate.annotations.Proxy;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
-public class Person implements Serializable{
+@JsonIgnoreProperties(value = {"hibernateLazyInitializer", "handler"}, ignoreUnknown = true)
+@Proxy(lazy = false)
+public class Person  implements Serializable{
     private int personId;
     private String benutzername;
     private String vorname;
