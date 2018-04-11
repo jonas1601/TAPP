@@ -14,7 +14,6 @@ public class PersonController {
 
     @GetMapping(path = "/person")
     public Person getPersonById(@RequestParam() int personId) {
-        System.out.println("TEST");
         Session session = HibernateConfiguration.getSessionFactory().openSession();
         Person person = session.load(Person.class, personId);
         session.close();
