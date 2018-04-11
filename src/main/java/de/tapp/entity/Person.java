@@ -1,9 +1,14 @@
 package de.tapp.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.hibernate.annotations.Proxy;
+
 import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
+@JsonIgnoreProperties(value = {"hibernateLazyInitializer", "handler"}, ignoreUnknown = true)
+@Proxy(lazy = false)
 public class Person {
     private int personId;
     private String benutzername;

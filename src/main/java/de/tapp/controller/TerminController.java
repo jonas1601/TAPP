@@ -18,7 +18,6 @@ public class TerminController {
     public Termin getTerminById(@RequestParam int terminId) {
         Session session = HibernateConfiguration.getSessionFactory().openSession();
         Termin termin = session.load(Termin.class, terminId);
-        System.out.println(termin);
         session.close();
         return termin;
     }

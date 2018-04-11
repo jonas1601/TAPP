@@ -1,6 +1,7 @@
 package de.tapp.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -8,6 +9,7 @@ import java.util.Objects;
 
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@Proxy(lazy = false)
 public class Termin {
     private int terminId;
     private String titel;
