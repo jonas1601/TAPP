@@ -2,11 +2,15 @@ package de.tapp.controller;
 
 import de.tapp.application.HibernateConfiguration;
 import de.tapp.entity.Gruppe;
+import de.tapp.entity.Gruppenmitglied;
+import de.tapp.entity.Person;
 import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -49,5 +53,21 @@ public class GruppenController {
                 session.close();
             }
         }
+    }
+
+    @GetMapping(path = "/gruppe")
+    public List<Gruppe> getGruppenVonPerson(@RequestParam String benutzername) {
+        Session session = HibernateConfiguration.getSessionFactory().openSession();
+        Person person = (Person) session.createCriteria(Person.class).add(Restrictions.eq("benutzername", benutzername)).uniqueResult();
+        List<Gruppenmitglied> g = session.createCriteria(Gruppenmitglied.class).add(Restrictions.eq("personId", person.getPersonId())).list();
+        List<Gruppe> gruppen = new ArrayList<Gruppe>();
+        session.close();
+        session = HibernateConfiguration.getSessionFactory().openSession();
+        for (int i = 0; i < g.size(); i++) {
+            Gruppe grp = session.load(Gruppe.class, g.get(i).getGruppenId());
+            gruppen.add(grp);
+        }
+        session.close();
+        return gruppen;
     }
 }
