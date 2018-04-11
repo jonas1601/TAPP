@@ -61,8 +61,6 @@ public class GruppenController {
         Person person = (Person) session.createCriteria(Person.class).add(Restrictions.eq("benutzername", benutzername)).uniqueResult();
         List<Gruppenmitglied> g = session.createCriteria(Gruppenmitglied.class).add(Restrictions.eq("personId", person.getPersonId())).list();
         List<Gruppe> gruppen = new ArrayList<Gruppe>();
-        session.close();
-        session = HibernateConfiguration.getSessionFactory().openSession();
         for (int i = 0; i < g.size(); i++) {
             Gruppe grp = session.load(Gruppe.class, g.get(i).getGruppenId());
             gruppen.add(grp);

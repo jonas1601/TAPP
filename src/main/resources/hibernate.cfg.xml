@@ -10,6 +10,7 @@
         <property name="connection.driver_class">com.microsoft.sqlserver.jdbc.SQLServerDriver</property>
         <property name="hibernate.connection.username">tappadmin</property>
         <property name="hibernate.connection.password">T@@P12345</property>
+        <property name="hibernate.enable_lazy_load_no_trans">true</property>
 
         <mapping class="de.tapp.entity.Gruppe"/>
         <mapping class="de.tapp.entity.Gruppenmitglied"/>
