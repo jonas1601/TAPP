@@ -3,11 +3,15 @@ package de.tapp.controller;
 import de.tapp.application.HibernateConfiguration;
 import de.tapp.entity.Termin;
 import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @RestController
 @CrossOrigin
@@ -20,6 +24,20 @@ public class TerminController {
         Termin termin = session.load(Termin.class, terminId);
         session.close();
         return termin;
+    }
+
+
+    @GetMapping(path = "/termine")
+    public List<Termin> getTermineByGruppenId(@RequestParam int gruppenId){
+        Session session = HibernateConfiguration.getSessionFactory().openSession();
+        LocalDateTime heutigerTag = LocalDateTime.now();
+        heutigerTag = heutigerTag.truncatedTo(ChronoUnit.DAYS);
+
+        List<Termin> termine = session.createCriteria(Termin.class)
+                .add(Restrictions.eq("gruppen_id",gruppenId))
+                .add(Restrictions.ge("anfang",heutigerTag))
+                .list();
+        return termine;
     }
 
     @PostMapping(path = "/termin")
