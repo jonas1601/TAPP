@@ -2,13 +2,9 @@ package de.tapp.controller;
 
 import de.tapp.application.HibernateConfiguration;
 import de.tapp.entity.Gruppe;
-import de.tapp.entity.Gruppenmitglied;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
-import org.hibernate.criterion.Restrictions;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -20,26 +16,38 @@ public class GruppenController {
 
 
     @GetMapping(path = "/gruppe/{id}")
-    public List getGruppenMitglieder(@PathVariable(name = "id")int id){
+    public List getGruppenMitglieder(@PathVariable(name = "id") int id) {
 
         String select = " FROM Gruppenmitglied gr ";
         Session session = HibernateConfiguration.getSessionFactory().openSession();
-      org.hibernate.query.Query query =  session.createQuery(select);
-     //  query.setParameter(1,id);
+        org.hibernate.query.Query query = session.createQuery(select);
+        //  query.setParameter(1,id);
 
         return query.list();
 
     }
 
-    @PostMapping(path = "/add/gruppe")
+    @PostMapping(path = "/gruppe")
     @Transactional
-    public void addGruppe(){
-        Session session = HibernateConfiguration.getSessionFactory().openSession();
-        Gruppe gruppe = new Gruppe();
-        gruppe.setName("Test");
-        Transaction transaction = session.beginTransaction();
-        session.save(gruppe);
-        session.flush();
-        session.close();
+    public HttpStatus addGruppe(@RequestParam String name) {
+        Session session = null;
+        try {
+            if (name.isEmpty() || name == null) return HttpStatus.BAD_REQUEST;
+            Gruppe gruppe = new Gruppe();
+            gruppe.setName(name);
+            session = HibernateConfiguration.getSessionFactory().openSession();
+            session.beginTransaction();
+            session.save(gruppe);
+            session.flush();
+            session.close();
+            return HttpStatus.ACCEPTED;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return HttpStatus.INTERNAL_SERVER_ERROR;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
     }
 }

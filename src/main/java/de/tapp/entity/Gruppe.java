@@ -4,11 +4,10 @@ import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import java.io.Serializable;
 import java.util.Objects;
 
 @javax.persistence.Entity
-public class Gruppe implements Serializable {
+public class Gruppe {
     private int gruppenId;
     private String name;
 
