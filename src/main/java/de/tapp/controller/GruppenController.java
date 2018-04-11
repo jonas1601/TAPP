@@ -2,14 +2,16 @@ package de.tapp.controller;
 
 import de.tapp.application.HibernateConfiguration;
 import de.tapp.entity.Gruppe;
+import de.tapp.entity.Gruppenmitglied;
+import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.hibernate.criterion.Restrictions;
+import org.springframework.web.bind.annotation.*;
+
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 @RestController
 @CrossOrigin
@@ -17,9 +19,16 @@ import javax.transaction.Transactional;
 public class GruppenController {
 
 
-    @GetMapping(path = "/gruppen")
-    public Gruppe getGruppe(){
-        return new Gruppe();
+    @GetMapping(path = "/gruppe/{id}")
+    public List getGruppenMitglieder(@PathVariable(name = "id")int id){
+
+        String select = " FROM Gruppenmitglied gr ";
+        Session session = HibernateConfiguration.getSessionFactory().openSession();
+      org.hibernate.query.Query query =  session.createQuery(select);
+     //  query.setParameter(1,id);
+
+        return query.list();
+
     }
 
     @PostMapping(path = "/add/gruppe")

@@ -1,16 +1,28 @@
 package de.tapp.entity;
 
 import javax.persistence.*;
+import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
-public class Person {
+public class Person implements Serializable{
     private int personId;
     private String benutzername;
     private String vorname;
     private String nachname;
     private String notificationToken;
     private String pass;
+    private List<Gruppenmitglied> gruppenmitglieder;
+
+    @OneToMany(mappedBy = "person")
+    public List<Gruppenmitglied> getGruppenmitglieder(){
+        return gruppenmitglieder;
+    }
+
+    public void setGruppenmitglieder(List<Gruppenmitglied> gruppenmitglieder){
+        this.gruppenmitglieder = gruppenmitglieder;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

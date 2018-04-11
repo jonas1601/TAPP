@@ -1,16 +1,22 @@
 package de.tapp.entity;
 
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import javax.persistence.Id;
 import java.io.Serializable;
 import java.util.Objects;
 
+@Embeddable
 public class GruppenmitgliedPK implements Serializable {
+    @Column(name = "person_id", nullable = false)
+    @Id
     private int personId;
-    private int gruppenId;
 
     @Column(name = "person_id", nullable = false)
     @Id
+    private int gruppenId;
+
+
     public int getPersonId() {
         return personId;
     }
@@ -19,8 +25,7 @@ public class GruppenmitgliedPK implements Serializable {
         this.personId = personId;
     }
 
-    @Column(name = "gruppen_id", nullable = false)
-    @Id
+
     public int getGruppenId() {
         return gruppenId;
     }

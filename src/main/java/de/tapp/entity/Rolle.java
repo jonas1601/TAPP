@@ -1,10 +1,11 @@
 package de.tapp.entity;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-public class Rolle {
+public class Rolle implements Serializable {
     private int rollenId;
     private String beschreibung;
 
