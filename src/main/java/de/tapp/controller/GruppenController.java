@@ -86,14 +86,8 @@ public class GruppenController {
     public HttpStatus addPersonToGruppe(@RequestParam int personId, @RequestParam int gruppenId, @RequestParam int rollenId) {
         Session session = null;
         try {
-            Gruppenmitglied gruppenmitglied = new Gruppenmitglied();
-            gruppenmitglied.setPerson(personId);
-            gruppenmitglied.setGruppenId(gruppenId);
-            session = HibernateConfiguration.getSessionFactory().openSession();
-            gruppenmitglied.setRolle(session.load(Rolle.class, rollenId));
-            session.beginTransaction();
-            session.save(gruppenmitglied);
-            close(session);
+            Gruppenmitglied gruppenmitglied = createGruppenmitgliedWith(personId, gruppenId, rollenId);
+            saveToDb(gruppenmitglied);
             return HttpStatus.ACCEPTED;
         } catch (Exception e) {
             e.printStackTrace();
@@ -103,6 +97,27 @@ public class GruppenController {
                 session.close();
             }
         }
+    }
+
+    private Gruppenmitglied createGruppenmitgliedWith(int personId, int gruppenId, int rollenId) {
+        Gruppenmitglied gruppenmitglied = new Gruppenmitglied();
+        gruppenmitglied.setGruppenId(gruppenId);
+        gruppenmitglied.setPersonId(personId);
+        Rolle rolle = getRoleBy(rollenId);
+        gruppenmitglied.setRolle(rolle);
+        return gruppenmitglied;
+    }
+
+    private Rolle getRoleBy(int id) {
+        Session session = openSession();
+        return session.load(Rolle.class, id);
+    }
+
+    private <T> void saveToDb(T object) {
+        Session session = openSession();
+        session.beginTransaction();
+        session.save(object);
+        close(session);
     }
 
     @DeleteMapping(path = "gruppenmitglied")
