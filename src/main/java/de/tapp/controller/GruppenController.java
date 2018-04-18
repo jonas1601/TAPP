@@ -42,8 +42,7 @@ public class GruppenController {
             session = HibernateConfiguration.getSessionFactory().openSession();
             session.beginTransaction();
             session.save(gruppe);
-            session.flush();
-            session.close();
+            close(session);
             return HttpStatus.ACCEPTED;
         } catch (Exception e) {
             e.printStackTrace();
@@ -65,7 +64,7 @@ public class GruppenController {
             Gruppe grp = session.load(Gruppe.class, g.get(i).getGruppenId());
             gruppen.add(grp);
         }
-        session.close();
+        close(session);
         return gruppen;
     }
 
@@ -79,7 +78,7 @@ public class GruppenController {
             Gruppe grp = session.load(Gruppe.class, g.get(i).getGruppenId());
             gruppen.add(grp);
         }
-        session.close();
+        close(session);
         return gruppen;
     }
 
@@ -94,8 +93,7 @@ public class GruppenController {
             gruppenmitglied.setRolle(session.load(Rolle.class, rollenId));
             session.beginTransaction();
             session.save(gruppenmitglied);
-            session.flush();
-            session.close();
+            close(session);
             return HttpStatus.ACCEPTED;
         } catch (Exception e) {
             e.printStackTrace();
@@ -111,13 +109,12 @@ public class GruppenController {
     public HttpStatus removePersonFromGruppe(@RequestParam int personId, @RequestParam int gruppenId) {
         Session session = null;
         try {
-            session = HibernateConfiguration.getSessionFactory().openSession();
+            session = openSession();
             Gruppenmitglied mitglied = (Gruppenmitglied) session.createCriteria(Gruppenmitglied.class)
                     .add(Restrictions.eq("personId", personId)).add(Restrictions.eq("gruppenId", gruppenId)).uniqueResult();
             session.beginTransaction();
             session.delete(mitglied);
-            session.flush();
-            session.close();
+            close(session);
             return HttpStatus.ACCEPTED;
         } catch (Exception e) {
             e.printStackTrace();
@@ -126,5 +123,14 @@ public class GruppenController {
             if (session != null)
                 session.close();
         }
+    }
+
+    private Session openSession() {
+        return HibernateConfiguration.getSessionFactory().openSession();
+    }
+
+    private void close(Session session) {
+        session.flush();
+        session.close();
     }
 }
