@@ -23,7 +23,7 @@ public class GruppenController {
     public List getGruppenMitglieder(@PathVariable(name = "id") int id) {
 
         String select = " FROM Gruppenmitglied gr ";
-        Session session = HibernateConfiguration.getSessionFactory().openSession();
+        Session session = openSession();
         org.hibernate.query.Query query = session.createQuery(select);
         //  query.setParameter(1,id);
 
@@ -34,51 +34,53 @@ public class GruppenController {
     @PostMapping(path = "/gruppe")
     @Transactional
     public HttpStatus addGruppe(@RequestParam String name) {
-        Session session = null;
         try {
             if (name.isEmpty() || name == null) return HttpStatus.BAD_REQUEST;
             Gruppe gruppe = new Gruppe();
             gruppe.setName(name);
-            session = HibernateConfiguration.getSessionFactory().openSession();
-            session.beginTransaction();
-            session.save(gruppe);
-            close(session);
+            saveToDb(gruppe);
             return HttpStatus.ACCEPTED;
         } catch (Exception e) {
             e.printStackTrace();
             return HttpStatus.INTERNAL_SERVER_ERROR;
-        } finally {
-            if (session != null) {
-                session.close();
-            }
         }
     }
 
     @GetMapping(path = "/gruppenbyname")
     public List<Gruppe> getGruppenVonPerson(@RequestParam String benutzername) {
-        Session session = HibernateConfiguration.getSessionFactory().openSession();
+        Person person = getPersonFromDbBy(benutzername);
+        List<Gruppenmitglied> gruppenmitgliedList = getGruppenMitgliederFromDbBy(person.getPersonId());
+        return getGruppenFrom(gruppenmitgliedList);
+    }
+
+    private Person getPersonFromDbBy(String benutzername) {
+        Session session = openSession();
         Person person = (Person) session.createCriteria(Person.class).add(Restrictions.eq("benutzername", benutzername)).uniqueResult();
-        List<Gruppenmitglied> g = session.createCriteria(Gruppenmitglied.class).add(Restrictions.eq("personId", person.getPersonId())).list();
-        List<Gruppe> gruppen = new ArrayList<>();
-        for (int i = 0; i < g.size(); i++) {
-            Gruppe grp = session.load(Gruppe.class, g.get(i).getGruppenId());
-            gruppen.add(grp);
-        }
-        close(session);
-        return gruppen;
+        session.close();
+        return person;
     }
 
     @GetMapping(path = "/gruppe")
     public List<Gruppe> getGruppenVonPerson(@RequestParam int personId) {
-        Session session = HibernateConfiguration.getSessionFactory().openSession();
-        Person person = session.load(Person.class, personId);
-        List<Gruppenmitglied> g = session.createCriteria(Gruppenmitglied.class).add(Restrictions.eq("personId", person.getPersonId())).list();
+        List<Gruppenmitglied> gruppenmitgliedList = getGruppenMitgliederFromDbBy(personId);
+        return getGruppenFrom(gruppenmitgliedList);
+    }
+
+    private List<Gruppenmitglied> getGruppenMitgliederFromDbBy(int personId) {
+        Session session = openSession();
+        List<Gruppenmitglied> gruppenmitgliedList = session.createCriteria(Gruppenmitglied.class).add(Restrictions.eq("personId", personId)).list();
+        session.close();
+        return gruppenmitgliedList;
+    }
+
+    private List<Gruppe> getGruppenFrom(List<Gruppenmitglied> gruppenmitgliedList) {
+        Session session = openSession();
         List<Gruppe> gruppen = new ArrayList<>();
-        for (int i = 0; i < g.size(); i++) {
-            Gruppe grp = session.load(Gruppe.class, g.get(i).getGruppenId());
-            gruppen.add(grp);
+        for (int i = 0; i < gruppenmitgliedList.size(); i++) {
+            Gruppe gruppe = session.load(Gruppe.class, gruppenmitgliedList.get(i).getGruppenId());
+            gruppen.add(gruppe);
         }
-        close(session);
+        session.close();
         return gruppen;
     }
 
@@ -115,36 +117,51 @@ public class GruppenController {
 
     private <T> void saveToDb(T object) {
         Session session = openSession();
-        session.beginTransaction();
-        session.save(object);
-        close(session);
+        try {
+            session.beginTransaction();
+            session.save(object);
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            cleanup(session);
+        }
+
     }
 
     @DeleteMapping(path = "gruppenmitglied")
     public HttpStatus removePersonFromGruppe(@RequestParam int personId, @RequestParam int gruppenId) {
-        Session session = null;
         try {
-            session = openSession();
-            Gruppenmitglied mitglied = (Gruppenmitglied) session.createCriteria(Gruppenmitglied.class)
-                    .add(Restrictions.eq("personId", personId)).add(Restrictions.eq("gruppenId", gruppenId)).uniqueResult();
-            session.beginTransaction();
-            session.delete(mitglied);
-            close(session);
+            Gruppenmitglied gruppenmitglied = getGruppenmitgliedFromGroupBy(personId, gruppenId);
+            deleteFromDb(gruppenmitglied);
             return HttpStatus.ACCEPTED;
         } catch (Exception e) {
             e.printStackTrace();
             return HttpStatus.INTERNAL_SERVER_ERROR;
-        } finally {
-            if (session != null)
-                session.close();
         }
+    }
+
+    private Gruppenmitglied getGruppenmitgliedFromGroupBy(int personId, int gruppenId) {
+        Session session = openSession();
+        try {
+            return (Gruppenmitglied) session.createCriteria(Gruppenmitglied.class)
+                    .add(Restrictions.eq("personId", personId)).add(Restrictions.eq("gruppenId", gruppenId)).uniqueResult();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    private <T> void deleteFromDb(T objectToDelete) {
+        Session session = openSession();
+        session.beginTransaction();
+        session.delete(objectToDelete);
+        cleanup(session);
     }
 
     private Session openSession() {
         return HibernateConfiguration.getSessionFactory().openSession();
     }
 
-    private void close(Session session) {
+    private void cleanup(Session session) {
         session.flush();
         session.close();
     }
