@@ -8,6 +8,7 @@ import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,7 +42,7 @@ public class PersonController {
         try {
            person = (Person) session.createCriteria(Person.class)
                    .add(Restrictions.eq("benutzername", credentials.getUsername()))
-                   .add(Restrictions.ge("pass", credentials.getPassword()))
+                   .add(Restrictions.ge("password", credentials.getPassword()))
                    .uniqueResult();
 
        }catch (ObjectNotFoundException e){
@@ -54,28 +55,25 @@ public class PersonController {
 
 
     @PostMapping(path = "/register")
-        public HttpStatus addPerson(@RequestBody Person person) {
+        public ResponseEntity<?> addPerson(@RequestBody Person person) {
             Session session = null;
-           /* Person person = new Person();
-            person.setBenutzername(benutzername);
-            person.setVorname(vorname);
-            person.setNachname(nachname);
-            person.setNotificationToken(notificationToken);
-            person.setPass(pass);*/
-
             try {
                 session = HibernateConfiguration.getSessionFactory().openSession();
                 session.beginTransaction();
-                person = (Person) session.createCriteria(Person.class)
-                        .add(Restrictions.eq("benutzername", person.getBenutzername()));
-                return HttpStatus.NOT_FOUND;
-            }catch (ObjectNotFoundException e){
-                session.save(person);
-                session.flush();
-                session.close();
-                return HttpStatus.ACCEPTED;
+                Person personInDb = (Person) session.createCriteria(Person.class)
+                        .add(Restrictions.eq("benutzername", person.getBenutzername()))
+                        .uniqueResult();
+               if(personInDb == null) {
+                   person.setNotificationToken("TEST");
+                   session.save(person);
+                   session.flush();
+                   session.close();
+                   return new ResponseEntity<>(person, HttpStatus.OK);
+               }else{
+                   return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+               }
             } catch (Exception e) {
-            return HttpStatus.INTERNAL_SERVER_ERROR;
+                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         } finally {
             if (session != null) {
                 session.close();

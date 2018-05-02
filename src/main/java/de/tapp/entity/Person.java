@@ -16,7 +16,7 @@ public class Person  implements Serializable{
     private String vorname;
     private String nachname;
     private String notificationToken;
-    private String pass;
+    private String password;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -71,12 +71,12 @@ public class Person  implements Serializable{
 
     @Basic
     @Column(name = "pass", nullable = true, length = 2147483647)
-    public String getPass() {
-        return pass;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPass(String pass) {
-        this.pass = pass;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override
@@ -89,12 +89,12 @@ public class Person  implements Serializable{
                 Objects.equals(vorname, person.vorname) &&
                 Objects.equals(nachname, person.nachname) &&
                 Objects.equals(notificationToken, person.notificationToken) &&
-                Objects.equals(pass, person.pass);
+                Objects.equals(password, person.password);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(personId, benutzername, vorname, nachname, notificationToken, pass);
+        return Objects.hash(personId, benutzername, vorname, nachname, notificationToken, password);
     }
 }
