@@ -26,7 +26,7 @@ public class Gruppenmitglied implements Serializable {
         return personId;
     }
 
-    public void setPerson(int personId) {
+    public void setPersonId(int personId) {
         this.personId = personId;
     }
 
