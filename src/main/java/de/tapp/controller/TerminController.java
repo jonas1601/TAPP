@@ -2,6 +2,7 @@ package de.tapp.controller;
 
 import de.tapp.application.HibernateConfiguration;
 import de.tapp.entity.Gruppe;
+import de.tapp.entity.Gruppe;
 import de.tapp.entity.Termin;
 import de.tapp.entity.TerminPerson;
 import org.hibernate.Session;
@@ -9,8 +10,11 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.RegEx;
 import javax.transaction.Transactional;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -48,34 +52,27 @@ public class TerminController {
     }
 
     @GetMapping(path = "/termine")
-    public List<Termin> getTermineByGruppenId(@RequestParam int gruppenId) {
+    public List<Termin> getTermineByGruppenId(@RequestParam int gruppenId){
         Session session = HibernateConfiguration.getSessionFactory().openSession();
-        Date heute = new GregorianCalendar().getTime();
+        LocalDateTime heutigerTag = LocalDateTime.now();
+        heutigerTag = heutigerTag.truncatedTo(ChronoUnit.DAYS);
 
         List<Termin> termine = session.createCriteria(Termin.class)
                 .add(Restrictions.eq("gruppenId", gruppenId))
-                .add(Restrictions.ge("ende", heute))
+                .add(Restrictions.ge("ende", heutigerTag))
                 .list();
         return termine;
     }
 
     @PostMapping(path = "/termin")
-    public HttpStatus addTermin(@RequestParam() String title, @RequestParam String beschreibung,
-                                @RequestParam int ganztaegig, @RequestParam String anfang,
-                                @RequestParam String ende, @RequestParam int gruppenId) {
+    public HttpStatus addTermin(@RequestParam int gruppenId, @RequestBody Termin termin) {
 
         Session session = null;
         try {
             session = HibernateConfiguration.getSessionFactory().openSession();
-            Termin t = new Termin();
-            t.setTitel(title);
-            t.setBeschreibung(beschreibung);
-            t.setGanztaegig(ganztaegig);
-            t.setAnfang(Timestamp.valueOf(anfang));
-            t.setEnde(Timestamp.valueOf(ende));
-            t.setGruppenId(gruppenId);
+            termin.setGruppenId(gruppenId);
             session.beginTransaction();
-            session.save(t);
+            session.save(termin);
             session.flush();
             session.close();
             return HttpStatus.ACCEPTED;
