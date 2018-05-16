@@ -2,7 +2,6 @@ package de.tapp.controller;
 
 import de.tapp.application.HibernateConfiguration;
 import de.tapp.entity.Gruppe;
-import de.tapp.entity.Gruppe;
 import de.tapp.entity.Termin;
 import de.tapp.entity.TerminPerson;
 import org.hibernate.Session;
@@ -10,14 +9,10 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.RegEx;
 import javax.transaction.Transactional;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 @RestController
@@ -52,7 +47,7 @@ public class TerminController {
     }
 
     @GetMapping(path = "/termine")
-    public List<Termin> getTermineByGruppenId(@RequestParam int gruppenId){
+    public List<Termin> getTermineByGruppenId(@RequestParam int gruppenId) {
         Session session = HibernateConfiguration.getSessionFactory().openSession();
         LocalDateTime heutigerTag = LocalDateTime.now();
         heutigerTag = heutigerTag.truncatedTo(ChronoUnit.DAYS);
@@ -103,7 +98,7 @@ public class TerminController {
         }
     }
 
-    @PostMapping(path = "terminperson")
+    @PostMapping(path = "/terminperson")
     public HttpStatus setzteTerminStatus(@RequestParam int terminId, @RequestParam int personId, @RequestParam int status, @RequestParam String kommentar) {
         Session session = null;
         try {
@@ -113,9 +108,9 @@ public class TerminController {
             s.setPersonId(personId);
             s.setStatusId(status);
             s.setKommentar(kommentar);
-            //s.setDatumAenderung();
+            s.setDatumAenderung(LocalDateTime.now());
             session.beginTransaction();
-            session.save(s);
+            session.saveOrUpdate(s);
             session.flush();
             session.close();
             return HttpStatus.ACCEPTED;
@@ -126,5 +121,4 @@ public class TerminController {
                 session.close();
         }
     }
-
 }

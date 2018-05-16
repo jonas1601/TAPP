@@ -1,6 +1,7 @@
 package de.tapp.entity;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -11,7 +12,7 @@ public class TerminPerson {
     private int personId;
     private int statusId;
     private String kommentar;
-    private String datumAenderung;
+    private LocalDateTime datumAenderung;
 
     @Id
     @Column(name = "termin_id", nullable = false)
@@ -55,11 +56,11 @@ public class TerminPerson {
 
     @Basic
     @Column(name = "datum_aenderung", nullable = true, length = 2147483647)
-    public String getDatumAenderung() {
+    public LocalDateTime getDatumAenderung() {
         return datumAenderung;
     }
 
-    public void setDatumAenderung(String datumAenderung) {
+    public void setDatumAenderung(LocalDateTime datumAenderung) {
         this.datumAenderung = datumAenderung;
     }
 
