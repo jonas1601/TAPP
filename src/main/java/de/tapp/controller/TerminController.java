@@ -1,6 +1,7 @@
 package de.tapp.controller;
 
 import de.tapp.application.HibernateConfiguration;
+import de.tapp.entity.Gruppe;
 import de.tapp.entity.Termin;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
@@ -9,14 +10,21 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 @RestController
 @CrossOrigin
 @Transactional
 public class TerminController {
+
+    private GruppenController gruppenController;
+
+    public TerminController(GruppenController gruppenController) {
+        this.gruppenController = gruppenController;
+    }
 
     @GetMapping(path = "/termin")
     public Termin getTerminById(@RequestParam int terminId) {
@@ -26,16 +34,26 @@ public class TerminController {
         return termin;
     }
 
+    @GetMapping(path = "/terminevonperson")
+    public List<Termin> getTermineVonPersonInZukunft(@RequestParam int personId) {
+        List<Gruppe> gruppen = this.gruppenController.getGruppenVonPerson(personId);
+        List<Termin> termine = new ArrayList<>();
+        for (Gruppe gruppe : gruppen) {
+            for (Termin termin : getTermineByGruppenId(gruppe.getGruppenId())) {
+                termine.add(termin);
+            }
+        }
+        return termine;
+    }
 
     @GetMapping(path = "/termine")
-    public List<Termin> getTermineByGruppenId(@RequestParam int gruppenId){
+    public List<Termin> getTermineByGruppenId(@RequestParam int gruppenId) {
         Session session = HibernateConfiguration.getSessionFactory().openSession();
-        LocalDateTime heutigerTag = LocalDateTime.now();
-        heutigerTag = heutigerTag.truncatedTo(ChronoUnit.DAYS);
+        Date heute = new GregorianCalendar().getTime();
 
         List<Termin> termine = session.createCriteria(Termin.class)
-                .add(Restrictions.eq("gruppen_id",gruppenId))
-                .add(Restrictions.ge("anfang",heutigerTag))
+                .add(Restrictions.eq("gruppenId", gruppenId))
+                .add(Restrictions.ge("ende", heute))
                 .list();
         return termine;
     }
