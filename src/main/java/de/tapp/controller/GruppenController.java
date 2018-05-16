@@ -22,10 +22,10 @@ public class GruppenController {
     @GetMapping(path = "/gruppe/{id}")
     public List getGruppenMitglieder(@PathVariable(name = "id") int id) {
 
-        String select = " FROM Gruppenmitglied gr ";
+        String select = " FROM Gruppenmitglied gr where  gruppenId = ?";
         Session session = openSession();
         org.hibernate.query.Query query = session.createQuery(select);
-        //  query.setParameter(1,id);
+        query.setParameter(0, id);
 
         return query.list();
 
