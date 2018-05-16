@@ -2,9 +2,11 @@ package de.tapp.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Proxy;
+import sun.util.resources.cldr.lag.LocaleNames_lag;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -14,8 +16,8 @@ public class Termin {
     private int terminId;
     private String titel;
     private String beschreibung;
-    private Timestamp anfang;
-    private Timestamp ende;
+    private LocalDateTime anfang;
+    private LocalDateTime ende;
     private Integer ganztaegig;
     private int gruppenId;
 
@@ -52,21 +54,21 @@ public class Termin {
 
     @Basic
     @Column(name = "anfang", nullable = true)
-    public Timestamp getAnfang() {
+    public LocalDateTime getAnfang() {
         return anfang;
     }
 
-    public void setAnfang(Timestamp anfang) {
+    public void setAnfang(LocalDateTime anfang) {
         this.anfang = anfang;
     }
 
     @Basic
     @Column(name = "ende", nullable = true)
-    public Timestamp getEnde() {
+    public LocalDateTime getEnde() {
         return ende;
     }
 
-    public void setEnde(Timestamp ende) {
+    public void setEnde(LocalDateTime ende) {
         this.ende = ende;
     }
 

@@ -7,6 +7,7 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.RegEx;
 import javax.transaction.Transactional;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -34,29 +35,21 @@ public class TerminController {
         heutigerTag = heutigerTag.truncatedTo(ChronoUnit.DAYS);
 
         List<Termin> termine = session.createCriteria(Termin.class)
-                .add(Restrictions.eq("gruppen_id",gruppenId))
+                .add(Restrictions.eq("gruppenId",gruppenId))
                 .add(Restrictions.ge("anfang",heutigerTag))
                 .list();
         return termine;
     }
 
     @PostMapping(path = "/termin")
-    public HttpStatus addTermin(@RequestParam() String title, @RequestParam String beschreibung,
-                                @RequestParam int ganztaegig, @RequestParam String anfang,
-                                @RequestParam String ende, @RequestParam int gruppenId) {
+    public HttpStatus addTermin(@RequestParam int gruppenId, @RequestBody Termin termin) {
 
         Session session = null;
         try {
             session = HibernateConfiguration.getSessionFactory().openSession();
-            Termin t = new Termin();
-            t.setTitel(title);
-            t.setBeschreibung(beschreibung);
-            t.setGanztaegig(ganztaegig);
-            t.setAnfang(Timestamp.valueOf(anfang));
-            t.setEnde(Timestamp.valueOf(ende));
-            t.setGruppenId(gruppenId);
+            termin.setGruppenId(gruppenId);
             session.beginTransaction();
-            session.save(t);
+            session.save(termin);
             session.flush();
             session.close();
             return HttpStatus.ACCEPTED;
