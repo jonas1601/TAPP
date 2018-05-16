@@ -3,6 +3,7 @@ package de.tapp.controller;
 import de.tapp.application.HibernateConfiguration;
 import de.tapp.entity.Gruppe;
 import de.tapp.entity.Termin;
+import de.tapp.entity.TerminPerson;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.http.HttpStatus;
@@ -104,4 +105,29 @@ public class TerminController {
                 session.close();
         }
     }
+
+    @PostMapping(path = "terminperson")
+    public HttpStatus setzteTerminStatus(@RequestParam int terminId, @RequestParam int personId, @RequestParam int status, @RequestParam String kommentar) {
+        Session session = null;
+        try {
+            session = HibernateConfiguration.getSessionFactory().openSession();
+            TerminPerson s = new TerminPerson();
+            s.setTerminId(terminId);
+            s.setPersonId(personId);
+            s.setStatusId(status);
+            s.setKommentar(kommentar);
+            //s.setDatumAenderung();
+            session.beginTransaction();
+            session.save(s);
+            session.flush();
+            session.close();
+            return HttpStatus.ACCEPTED;
+        } catch (Exception e) {
+            return HttpStatus.INTERNAL_SERVER_ERROR;
+        } finally {
+            if (session != null)
+                session.close();
+        }
+    }
+
 }
