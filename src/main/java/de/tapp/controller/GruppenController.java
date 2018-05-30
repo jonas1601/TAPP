@@ -60,7 +60,7 @@ public class GruppenController {
         return person;
     }
 
-    @GetMapping(path = "/gruppe")
+    @GetMapping(path = "/gruppenbypersonid")
     public List<Gruppe> getGruppenVonPerson(@RequestParam int personId) {
         List<Gruppenmitglied> gruppenmitgliedList = getGruppenMitgliederFromDbBy(personId);
         return getGruppenFrom(gruppenmitgliedList);
