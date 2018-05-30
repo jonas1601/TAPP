@@ -26,6 +26,15 @@ public class TerminController {
         this.gruppenController = gruppenController;
     }
 
+    @GetMapping(path = "/stati")
+    public List<TerminPerson> getStatiVonPerson(@RequestParam int personId) {
+        Session session = HibernateConfiguration.getSessionFactory().openSession();
+        List<TerminPerson> stati = session.createCriteria(TerminPerson.class)
+                .add(Restrictions.eq("personId", personId))
+                .list();
+        return stati;
+    }
+
     @GetMapping(path = "/termin")
     public Termin getTerminById(@RequestParam int terminId) {
         Session session = HibernateConfiguration.getSessionFactory().openSession();
