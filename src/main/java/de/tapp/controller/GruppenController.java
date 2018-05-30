@@ -19,6 +19,12 @@ import java.util.List;
 @Transactional
 public class GruppenController {
 
+    private PersonController personController;
+
+    public GruppenController(PersonController personController) {
+        this.personController = personController;
+    }
+
     @GetMapping(path = "/gruppe/{id}")
     public List getGruppenMitglieder(@PathVariable(name = "id") int id) {
 
@@ -28,7 +34,18 @@ public class GruppenController {
         query.setParameter(0, id);
 
         return query.list();
+    }
 
+    @GetMapping(path = "/mitglieder")
+    public List<Person> getPersonenFromGruppe(@RequestParam int gruppenId) {
+        ArrayList<Person> personen = new ArrayList<>();
+        List gruppenmitglieder = getGruppenMitglieder(gruppenId);
+        for (Object o : gruppenmitglieder) {
+            Person p = personController.getPersonById(((Gruppenmitglied) o).getPersonId());
+            p.setPassword(null);
+            personen.add(p);
+        }
+        return personen;
     }
 
     @PostMapping(path = "/gruppe")
