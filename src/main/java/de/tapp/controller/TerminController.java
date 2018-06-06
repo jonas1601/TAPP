@@ -108,7 +108,7 @@ public class TerminController {
     }
 
     @PostMapping(path = "/terminperson")
-    public HttpStatus setzteTerminStatus(@RequestParam int terminId, @RequestParam int personId, @RequestParam int status, @RequestParam String kommentar) {
+    public TerminPerson setzteTerminStatus(@RequestParam int terminId, @RequestParam int personId, @RequestParam int status, @RequestParam String kommentar) {
         Session session = null;
         try {
             session = HibernateConfiguration.getSessionFactory().openSession();
@@ -122,9 +122,10 @@ public class TerminController {
             session.saveOrUpdate(s);
             session.flush();
             session.close();
-            return HttpStatus.ACCEPTED;
+            s.setDatumAenderung(null);
+            return s;
         } catch (Exception e) {
-            return HttpStatus.INTERNAL_SERVER_ERROR;
+            return null;
         } finally {
             if (session != null)
                 session.close();
