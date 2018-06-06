@@ -3,7 +3,6 @@ package de.tapp.controller;
 import de.tapp.application.HibernateConfiguration;
 import de.tapp.entity.Credentials;
 import de.tapp.entity.Person;
-import de.tapp.entity.Termin;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
@@ -16,6 +15,22 @@ import java.util.List;
 @RestController
 @CrossOrigin
 public class PersonController {
+
+    @GetMapping(path = "/personen")
+    public List<Person> getAllePersonen() {
+        Session session = null;
+        try {
+            session = HibernateConfiguration.getSessionFactory().openSession();
+            List<Person> personen = session.createCriteria(Person.class).list();
+            personen.forEach(p -> p.setPassword(""));
+            return personen;
+        } catch (Exception e) {
+            return null;
+        } finally {
+            if (session != null)
+                session.close();
+        }
+    }
 
     @GetMapping(path = "/person")
     public Person getPersonById(@RequestParam() int personId) {
