@@ -5,7 +5,7 @@
 
 	<groupId>de.lvm.javaakademie.chat-server</groupId>
 	<artifactId>Chat-Server</artifactId>
-    <version>0.6</version>
+	<version>0.8</version>
 	<packaging>jar</packaging>
 
 	<name>Chat-Server</name>

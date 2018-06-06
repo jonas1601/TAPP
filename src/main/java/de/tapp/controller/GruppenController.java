@@ -50,16 +50,16 @@ public class GruppenController {
 
     @PostMapping(path = "/gruppe")
     @Transactional
-    public HttpStatus addGruppe(@RequestParam String name) {
+    public Gruppe addGruppe(@RequestParam String name) {
         try {
-            if (name.isEmpty() || name == null) return HttpStatus.BAD_REQUEST;
+            if (name.isEmpty() || name == null) return null;
             Gruppe gruppe = new Gruppe();
             gruppe.setName(name);
             saveToDb(gruppe);
-            return HttpStatus.ACCEPTED;
+            return gruppe;
         } catch (Exception e) {
             e.printStackTrace();
-            return HttpStatus.INTERNAL_SERVER_ERROR;
+            return null;
         }
     }
 
@@ -107,6 +107,25 @@ public class GruppenController {
         try {
             Gruppenmitglied gruppenmitglied = createGruppenmitgliedWith(personId, gruppenId, rollenId);
             saveToDb(gruppenmitglied);
+            return HttpStatus.ACCEPTED;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return HttpStatus.INTERNAL_SERVER_ERROR;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
+    @PostMapping(path = "gruppenmitglieder")
+    public HttpStatus addPersonenToGruppe(@RequestParam int gruppenId, @RequestParam int rollenId, @RequestBody List<Person> personen) {
+        Session session = null;
+        try {
+            for (Person p : personen) {
+                Gruppenmitglied gruppenmitglied = createGruppenmitgliedWith(p.getPersonId(), gruppenId, rollenId);
+                saveToDb(gruppenmitglied);
+            }
             return HttpStatus.ACCEPTED;
         } catch (Exception e) {
             e.printStackTrace();
