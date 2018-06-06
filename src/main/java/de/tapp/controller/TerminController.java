@@ -131,4 +131,21 @@ public class TerminController {
                 session.close();
         }
     }
+
+    @GetMapping(path = "/terminstati")
+    public List<TerminPerson> getTerminStati(@RequestParam int terminId) {
+        Session session = null;
+        try {
+            session = HibernateConfiguration.getSessionFactory().openSession();
+            List<TerminPerson> stati = session.createCriteria(TerminPerson.class)
+                    .add(Restrictions.eq("terminId", terminId))
+                    .list();
+            return stati;
+        } catch (Exception e) {
+            return null;
+        } finally {
+            if (session != null)
+                session.close();
+        }
+    }
 }
