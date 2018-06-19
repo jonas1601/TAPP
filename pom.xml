@@ -3,12 +3,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>de.lvm.javaakademie.chat-server</groupId>
-	<artifactId>Chat-Server</artifactId>
-	<version>0.8</version>
+	<groupId>de.lebk.tapp-server</groupId>
+	<artifactId>Tapp-Server</artifactId>
+	<version>0.9</version>
 	<packaging>jar</packaging>
 
-	<name>Chat-Server</name>
+	<name>Tapp-Server</name>
 	<description></description>
 
 	<parent>

@@ -1,6 +1,5 @@
 package de.tapp.controller;
 
-import de.tapp.application.HibernateConfiguration;
 import de.tapp.entity.Gruppe;
 import de.tapp.entity.Termin;
 import de.tapp.entity.TerminPerson;
@@ -15,6 +14,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
+import static de.tapp.application.HibernateConfiguration.cleanup;
+import static de.tapp.application.HibernateConfiguration.openSession;
+
 @RestController
 @CrossOrigin
 @Transactional
@@ -28,19 +30,28 @@ public class TerminController {
 
     @GetMapping(path = "/stati")
     public List<TerminPerson> getStatiVonPerson(@RequestParam int personId) {
-        Session session = HibernateConfiguration.getSessionFactory().openSession();
-        List<TerminPerson> stati = session.createCriteria(TerminPerson.class)
-                .add(Restrictions.eq("personId", personId))
-                .list();
-        return stati;
+        Session session = null;
+        try {
+            session = openSession();
+            List<TerminPerson> stati = session.createCriteria(TerminPerson.class)
+                    .add(Restrictions.eq("personId", personId))
+                    .list();
+            return stati;
+        } finally {
+            cleanup(session);
+        }
     }
 
     @GetMapping(path = "/termin")
     public Termin getTerminById(@RequestParam int terminId) {
-        Session session = HibernateConfiguration.getSessionFactory().openSession();
-        Termin termin = session.load(Termin.class, terminId);
-        session.close();
-        return termin;
+        Session session = null;
+        try {
+            session = openSession();
+            Termin termin = session.load(Termin.class, terminId);
+            return termin;
+        } finally {
+            cleanup(session);
+        }
     }
 
     @GetMapping(path = "/terminevonperson")
@@ -57,15 +68,20 @@ public class TerminController {
 
     @GetMapping(path = "/termine")
     public List<Termin> getTermineByGruppenId(@RequestParam int gruppenId) {
-        Session session = HibernateConfiguration.getSessionFactory().openSession();
-        LocalDateTime heutigerTag = LocalDateTime.now();
-        heutigerTag = heutigerTag.truncatedTo(ChronoUnit.DAYS);
+        Session session = null;
+        try {
+            session = openSession();
+            LocalDateTime heutigerTag = LocalDateTime.now();
+            heutigerTag = heutigerTag.truncatedTo(ChronoUnit.DAYS);
 
-        List<Termin> termine = session.createCriteria(Termin.class)
-                .add(Restrictions.eq("gruppenId", gruppenId))
-                .add(Restrictions.ge("ende", heutigerTag))
-                .list();
-        return termine;
+            List<Termin> termine = session.createCriteria(Termin.class)
+                    .add(Restrictions.eq("gruppenId", gruppenId))
+                    .add(Restrictions.ge("ende", heutigerTag))
+                    .list();
+            return termine;
+        } finally {
+            cleanup(session);
+        }
     }
 
     @PostMapping(path = "/termin")
@@ -73,18 +89,15 @@ public class TerminController {
 
         Session session = null;
         try {
-            session = HibernateConfiguration.getSessionFactory().openSession();
+            session = openSession();
             termin.setGruppenId(gruppenId);
             session.beginTransaction();
             session.save(termin);
-            session.flush();
-            session.close();
             return HttpStatus.ACCEPTED;
         } catch (Exception e) {
             return HttpStatus.INTERNAL_SERVER_ERROR;
         } finally {
-            if (session != null)
-                session.close();
+            cleanup(session);
         }
     }
 
@@ -92,18 +105,15 @@ public class TerminController {
     public HttpStatus deleteTermin(@RequestParam() int terminId) {
         Session session = null;
         try {
-            session = HibernateConfiguration.getSessionFactory().openSession();
+            session = openSession();
             Termin termin = (Termin) session.load(Termin.class, terminId);
             session.beginTransaction();
             session.delete(termin);
-            session.flush();
-            session.close();
             return HttpStatus.ACCEPTED;
         } catch (Exception e) {
             return HttpStatus.INTERNAL_SERVER_ERROR;
         } finally {
-            if (session != null)
-                session.close();
+            cleanup(session);
         }
     }
 
@@ -111,7 +121,7 @@ public class TerminController {
     public TerminPerson setzteTerminStatus(@RequestParam int terminId, @RequestParam int personId, @RequestParam int status, @RequestParam String kommentar) {
         Session session = null;
         try {
-            session = HibernateConfiguration.getSessionFactory().openSession();
+            session = openSession();
             TerminPerson s = new TerminPerson();
             s.setTerminId(terminId);
             s.setPersonId(personId);
@@ -120,15 +130,12 @@ public class TerminController {
             s.setDatumAenderung(LocalDateTime.now());
             session.beginTransaction();
             session.saveOrUpdate(s);
-            session.flush();
-            session.close();
             s.setDatumAenderung(null);
             return s;
         } catch (Exception e) {
             return null;
         } finally {
-            if (session != null)
-                session.close();
+            cleanup(session);
         }
     }
 
@@ -136,7 +143,7 @@ public class TerminController {
     public List<TerminPerson> getTerminStati(@RequestParam int terminId) {
         Session session = null;
         try {
-            session = HibernateConfiguration.getSessionFactory().openSession();
+            session = openSession();
             List<TerminPerson> stati = session.createCriteria(TerminPerson.class)
                     .add(Restrictions.eq("terminId", terminId))
                     .list();
@@ -144,8 +151,7 @@ public class TerminController {
         } catch (Exception e) {
             return null;
         } finally {
-            if (session != null)
-                session.close();
+            cleanup(session);
         }
     }
 }

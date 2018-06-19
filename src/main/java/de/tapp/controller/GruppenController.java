@@ -1,6 +1,5 @@
 package de.tapp.controller;
 
-import de.tapp.application.HibernateConfiguration;
 import de.tapp.entity.Gruppe;
 import de.tapp.entity.Gruppenmitglied;
 import de.tapp.entity.Person;
@@ -13,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+
+import static de.tapp.application.HibernateConfiguration.cleanup;
+import static de.tapp.application.HibernateConfiguration.openSession;
 
 @RestController
 @CrossOrigin
@@ -71,10 +73,14 @@ public class GruppenController {
     }
 
     private Person getPersonFromDbBy(String benutzername) {
-        Session session = openSession();
-        Person person = (Person) session.createCriteria(Person.class).add(Restrictions.eq("benutzername", benutzername)).uniqueResult();
-        session.close();
-        return person;
+        Session session = null;
+        try {
+            session = openSession();
+            Person person = (Person) session.createCriteria(Person.class).add(Restrictions.eq("benutzername", benutzername)).uniqueResult();
+            return person;
+        } finally {
+            cleanup(session);
+        }
     }
 
     @GetMapping(path = "/gruppenbypersonid")
@@ -84,21 +90,29 @@ public class GruppenController {
     }
 
     private List<Gruppenmitglied> getGruppenMitgliederFromDbBy(int personId) {
-        Session session = openSession();
-        List<Gruppenmitglied> gruppenmitgliedList = session.createCriteria(Gruppenmitglied.class).add(Restrictions.eq("personId", personId)).list();
-        session.close();
-        return gruppenmitgliedList;
+        Session session = null;
+        try {
+            session = openSession();
+            List<Gruppenmitglied> gruppenmitgliedList = session.createCriteria(Gruppenmitglied.class).add(Restrictions.eq("personId", personId)).list();
+            return gruppenmitgliedList;
+        } finally {
+            cleanup(session);
+        }
     }
 
     private List<Gruppe> getGruppenFrom(List<Gruppenmitglied> gruppenmitgliedList) {
-        Session session = openSession();
-        List<Gruppe> gruppen = new ArrayList<>();
-        for (int i = 0; i < gruppenmitgliedList.size(); i++) {
-            Gruppe gruppe = session.load(Gruppe.class, gruppenmitgliedList.get(i).getGruppenId());
-            gruppen.add(gruppe);
+        Session session = null;
+        try {
+            session = openSession();
+            List<Gruppe> gruppen = new ArrayList<>();
+            for (int i = 0; i < gruppenmitgliedList.size(); i++) {
+                Gruppe gruppe = session.load(Gruppe.class, gruppenmitgliedList.get(i).getGruppenId());
+                gruppen.add(gruppe);
+            }
+            return gruppen;
+        } finally {
+            cleanup(session);
         }
-        session.close();
-        return gruppen;
     }
 
     @PostMapping(path = "gruppenmitglied")
@@ -112,9 +126,7 @@ public class GruppenController {
             e.printStackTrace();
             return HttpStatus.INTERNAL_SERVER_ERROR;
         } finally {
-            if (session != null) {
-                session.close();
-            }
+            cleanup(session);
         }
     }
 
@@ -131,9 +143,7 @@ public class GruppenController {
             e.printStackTrace();
             return HttpStatus.INTERNAL_SERVER_ERROR;
         } finally {
-            if (session != null) {
-                session.close();
-            }
+            cleanup(session);
         }
     }
 
@@ -147,8 +157,14 @@ public class GruppenController {
     }
 
     private Rolle getRoleBy(int id) {
-        Session session = openSession();
-        return session.load(Rolle.class, id);
+        Session session = null;
+        try {
+            session = openSession();
+            return session.load(Rolle.class, id);
+        } finally {
+            cleanup(session);
+        }
+
     }
 
     private <T> void saveToDb(T object) {
@@ -156,8 +172,6 @@ public class GruppenController {
         try {
             session.beginTransaction();
             session.save(object);
-        } catch (Exception e) {
-            throw e;
         } finally {
             cleanup(session);
         }
@@ -183,7 +197,10 @@ public class GruppenController {
                     .add(Restrictions.eq("personId", personId)).add(Restrictions.eq("gruppenId", gruppenId)).uniqueResult();
         } catch (Exception e) {
             throw e;
+        } finally {
+            cleanup(session);
         }
+
     }
 
     private <T> void deleteFromDb(T objectToDelete) {
@@ -191,14 +208,5 @@ public class GruppenController {
         session.beginTransaction();
         session.delete(objectToDelete);
         cleanup(session);
-    }
-
-    private Session openSession() {
-        return HibernateConfiguration.getSessionFactory().openSession();
-    }
-
-    private void cleanup(Session session) {
-        session.flush();
-        session.close();
     }
 }

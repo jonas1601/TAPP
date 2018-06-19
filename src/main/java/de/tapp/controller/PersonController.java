@@ -1,6 +1,5 @@
 package de.tapp.controller;
 
-import de.tapp.application.HibernateConfiguration;
 import de.tapp.entity.Credentials;
 import de.tapp.entity.Person;
 import org.hibernate.ObjectNotFoundException;
@@ -12,6 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static de.tapp.application.HibernateConfiguration.cleanup;
+import static de.tapp.application.HibernateConfiguration.openSession;
+
 @RestController
 @CrossOrigin
 public class PersonController {
@@ -20,30 +22,29 @@ public class PersonController {
     public List<Person> getAllePersonen() {
         Session session = null;
         try {
-            session = HibernateConfiguration.getSessionFactory().openSession();
+            session = openSession();
             List<Person> personen = session.createCriteria(Person.class).list();
             personen.forEach(p -> p.setPassword(""));
             return personen;
         } catch (Exception e) {
             return null;
         } finally {
-            if (session != null)
-                session.close();
+            cleanup(session);
         }
     }
 
     @GetMapping(path = "/person")
     public Person getPersonById(@RequestParam() int personId) {
 
-        Session session = HibernateConfiguration.getSessionFactory().openSession();
+        Session session = openSession();
         Person person = null;
-        try{
-             person = session.load(Person.class, personId);
+        try {
+            person = session.load(Person.class, personId);
 
-        }catch(ObjectNotFoundException e){
+        } catch (ObjectNotFoundException e) {
 
-        }finally {
-            session.close();
+        } finally {
+            cleanup(session);
         }
 
         return person;
@@ -51,51 +52,44 @@ public class PersonController {
     }
 
     @PostMapping(path = "/login")
-    public Person login(@RequestBody Credentials credentials){
-        Session session = HibernateConfiguration.getSessionFactory().openSession();
+    public Person login(@RequestBody Credentials credentials) {
+        Session session = openSession();
         Person person = null;
         try {
-           person = (Person) session.createCriteria(Person.class)
-                   .add(Restrictions.eq("benutzername", credentials.getUsername()))
-                   .add(Restrictions.ge("password", credentials.getPassword()))
-                   .uniqueResult();
+            person = (Person) session.createCriteria(Person.class)
+                    .add(Restrictions.eq("benutzername", credentials.getUsername()))
+                    .add(Restrictions.ge("password", credentials.getPassword()))
+                    .uniqueResult();
 
-       }catch (ObjectNotFoundException e){
+        } catch (ObjectNotFoundException e) {
 
-        }finally {
-            session.close();
+        } finally {
+            cleanup(session);
         }
-       return person;
+        return person;
     }
 
 
     @PostMapping(path = "/register")
-        public ResponseEntity<?> addPerson(@RequestBody Person person) {
-            Session session = null;
-            try {
-                session = HibernateConfiguration.getSessionFactory().openSession();
-                session.beginTransaction();
-                Person personInDb = (Person) session.createCriteria(Person.class)
-                        .add(Restrictions.eq("benutzername", person.getBenutzername()))
-                        .uniqueResult();
-               if(personInDb == null) {
-                   person.setNotificationToken("TEST");
-                   session.save(person);
-                   session.flush();
-                   session.close();
-                   return new ResponseEntity<>(person, HttpStatus.OK);
-               }else{
-                   return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-               }
-            } catch (Exception e) {
-                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        } finally {
-            if (session != null) {
-                session.close();
+    public ResponseEntity<?> addPerson(@RequestBody Person person) {
+        Session session = null;
+        try {
+            session = openSession();
+            session.beginTransaction();
+            Person personInDb = (Person) session.createCriteria(Person.class)
+                    .add(Restrictions.eq("benutzername", person.getBenutzername()))
+                    .uniqueResult();
+            if (personInDb == null) {
+                person.setNotificationToken("TEST");
+                session.save(person);
+                return new ResponseEntity<>(person, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
             }
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        } finally {
+            cleanup(session);
         }
     }
-
-
-
 }
